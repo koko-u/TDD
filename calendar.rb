@@ -25,18 +25,32 @@ class Calendar
 
   def each_week
     week = Array.new(7) { |i| first_sunday + i }
-    until week[0] > last_saturday
-      yield week
-      week.map! { |i| i + 7 }
+    enum = Enumerator.new do |y|
+      until week[0] > last_saturday
+        y << week
+        week.map! { |i| i + 7 }
+      end
     end
-    self
+    if block_given?
+      enum.each { |w| yield w }
+      self
+    else
+      enum
+    end
   end
 
   def each_day
-    first_day.upto(last_day) do |date|
-      yield date
+    enum = Enumerator.new do |y|
+      first_day.upto(last_day) do |date|
+        y << date
+      end
     end
-    self
+    if block_given?
+      enum.each { |d| yield d }
+      self
+    else
+      enum
+    end
   end
 
 end
